@@ -42,12 +42,11 @@ sd_setup()
 # https://surveydown.org/store-data
 
 db <- sd_database(
-  host   = "aws-0-us-east-1.pooler.supabase.com",
-  dbname = "postgres",
-  port   = "6543",
-  user   = "postgres.axzkymswaxcdkbushwxb",
-  table  = "test6", 
-  gssencmode = 'disable', 
+  host   = "",
+  dbname = "",
+  port   = "",
+  user   = "",
+  table  = "",
   ignore = TRUE
 )
 ```
@@ -74,7 +73,7 @@ your new URL should be: `http://localhost:8888/?id_a=a123&id_b=b234&id_c=c345`.
 
 ::: {.callout-tip}
 
-1.  A **static** button is defined in the survey body. It provides a simple, hard-coded URL.
+1.  A **static** button is defined in the survey body. It provides a simple, hard-coded target URL.
 2.  A **reactive** button is defined in the server chunk. It grabs the IDs from the survey URL and appends to your target URL in your desired order. This is vitally important if you work with survey panels.
 
 :::
