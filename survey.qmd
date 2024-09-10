@@ -56,48 +56,53 @@ db <- sd_database(
 
 # Demo survey of external redirects
 
-::: {.callout-tip}
-This is a demo survey showcasing the functionality of <a href="https://surveydown.org" target="_blank">surveydown</a>. It doesn't collect any data.
-
-The GitHub repo of this demo can be accessed <a href="https://github.com/surveydown-dev/demo-external-redirect" target="_blank">here</a>.
-
-:::
-
 ::: {.callout-important}
 
-To properly showcase this demo, concatenate this to your url: `/?id_a=a123&id_b=b234&id_c=c345`
+To properly showcase this demo, concatenate this to your URL:
 
-For example, if your original url is: `http://localhost:8888`,
+```{r}
+#| echo: true
+#| eval: false
+/?id_a=a123&id_b=b234&id_c=c345
+```
 
-your new url should be: `http://localhost:8888/?id_a=a123&id_b=b234&id_c=c345`.
+For example, if your original URL is: `http://localhost:8888`,
+
+your new URL should be: `http://localhost:8888/?id_a=a123&id_b=b234&id_c=c345`.
 
 :::
 
-In this demo, we show case both the static and reactive redirections.
+::: {.callout-tip}
+
+1.  A **static** button is defined in the survey body. It provides a simple, hard-coded URL.
+2.  A **reactive** button is defined in the server chunk. It grabs the IDs from the survey URL and appends to your target URL in your desired order. This is vitally important if you work with survey panels.
+
+:::
+
+In this demo, we showcase both the static and reactive redirections.
 
 ```{r}
 sd_question(
-  type  = 'mc',
-  id    = 'screening_question',
+  type  = "mc",
+  id    = "screening_question",
   label = "**Which page do you want to go to?**",
   option = c(
-    'Normal ending page' = 'end',
-    'Screenout page'     = 'screenout'
+    "Normal ending with static redirect button"      = "normal_end_1",
+    "Normal ending with reactive redirect button"    = "normal_end_2",
+    "Screenout ending with reactive redirect button" = "screenout"
   )
 )
 ```
 
-<br>
-
 ```{r}
-sd_next(next_page = 'end_page')
+sd_next(next_page = 'end_page_1')
 ```
 
 :::
 
-::: {#end_page .sd-page}
+::: {#end_page_1 .sd-page}
 
-## This it the normal ending page of the survey.
+## This it the normal ending page with static redirect buttons.
 
 This is a static redirect button to Google.
 ```{r}
@@ -116,11 +121,17 @@ This is a static redirect button with a count-down.
 sd_redirect(
   id = "redirect",
   url = "https://www.google.com",
-  label = "Click to Google or wait for 10 seconds",
+  label = "Click to Google or Wait for 10 Seconds",
   button = TRUE,
   delay = 10
 )
 ```
+
+:::
+
+::: {#end_page_2 .sd-page}
+
+## This it the normal ending page with reactive redirect button.
 
 This is a reactive redirect button that contains customized id values.
 This button redirects you to **normal ending** by an indicator of `status=0`.
@@ -133,7 +144,7 @@ sd_output("redirect_normal")
 
 ::: {#screenout_page .sd-page}
 
-## This it the screenout page of the survey.
+## This it the screenout page with reactive redirect button.
 
 This is a reactive redirect button that contains customized id values.
 This button redirects you to **screenout** by an indicator of `status=1`.
@@ -162,7 +173,7 @@ sd_redirect(
   id = "redirect_normal",
   url = url_normal(),
   button = TRUE,
-  label = "Redirect to new URL"
+  label = "Redirect as Normal Status"
 )
 
 # Reactive redirect for a screenout
@@ -180,7 +191,7 @@ sd_redirect(
   id = "redirect_screenout",
   url = url_screenout(),
   button = TRUE,
-  label = "Redirect to new URL"
+  label = "Redirect as Screenout Status"
 )
 
 ################
@@ -190,9 +201,11 @@ sd_redirect(
 config <- sd_config(
   skip_if = tibble::tribble(
     ~question_id,          ~question_value, ~target,
-    "screening_question",  "end",           "end_page",
+    "screening_question",  "normal_end_1",  "end_page_1",
+    "screening_question",  "normal_end_2",  "end_page_2",
     "screening_question",  "screenout",     "screenout_page"
-  )
+  ),
+  all_questions_required = TRUE
 )
 
 # The sd_server() function initiates your survey. Don't change this.
