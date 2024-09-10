@@ -1,0 +1,206 @@
+---
+server: shiny
+filters: [surveydown]
+---
+
+```{r}
+#| context: setup
+#| echo: false
+#| warning: false
+#| message: false
+
+################
+# Installation #
+################
+
+# Run this in your R Console to install the latest version of the package:
+# remotes::install_github("surveydown-dev/surveydown", force = TRUE)
+
+# Run this to install or update the Quarto extension to the latest version:
+# surveydown::sd_update_extension()
+
+#################
+# Load packages #
+#################
+
+library(surveydown)
+library(tidyverse)
+
+# Run initial setup function (essential - do not delete)
+sd_setup()
+
+##################
+# Database setup #
+##################
+
+# surveydown stores data on a database that you define at https://supabase.com/
+# To connect to a database, update the sd_database() function with details
+# from your supabase database. For this demo, we set ignore = TRUE, which will
+# ignore the settings and won't attempt to connect to the database. This is
+# helpful for local testing if you don't want to record testing data in the
+# database table. See the documentation for details:
+# https://surveydown.org/store-data
+
+db <- sd_database(
+  host   = "aws-0-us-east-1.pooler.supabase.com",
+  dbname = "postgres",
+  port   = "6543",
+  user   = "postgres.axzkymswaxcdkbushwxb",
+  table  = "test6", 
+  gssencmode = 'disable', 
+  ignore = TRUE
+)
+```
+
+::: {#welcome .sd-page}
+
+# Demo survey of external redirects
+
+::: {.callout-tip}
+This is a demo survey showcasing the functionality of <a href="https://surveydown.org" target="_blank">surveydown</a>. It doesn't collect any data.
+
+The GitHub repo of this demo can be accessed <a href="https://github.com/surveydown-dev/demo-external-redirect" target="_blank">here</a>.
+
+:::
+
+::: {.callout-important}
+
+To properly showcase this demo, concatenate this to your url: `/?id_a=a123&id_b=b234&id_c=c345`
+
+For example, if your original url is: `http://localhost:8888`,
+
+your new url should be: `http://localhost:8888/?id_a=a123&id_b=b234&id_c=c345`.
+
+:::
+
+In this demo, we show case both the static and reactive redirections.
+
+```{r}
+sd_question(
+  type  = 'mc',
+  id    = 'screening_question',
+  label = "**Which page do you want to go to?**",
+  option = c(
+    'Normal ending page' = 'end',
+    'Screenout page'     = 'screenout'
+  )
+)
+```
+
+<br>
+
+```{r}
+sd_next(next_page = 'end_page')
+```
+
+:::
+
+::: {#end_page .sd-page}
+
+## This it the normal ending page of the survey.
+
+This is a static redirect button to Google.
+```{r}
+# Static redirect
+sd_redirect(
+  id = "redirect",
+  url = "https://www.google.com",
+  label = "Click to Google",
+  button = TRUE
+)
+```
+
+This is a static redirect button with a count-down.
+```{r}
+# Static redirect with delay
+sd_redirect(
+  id = "redirect",
+  url = "https://www.google.com",
+  label = "Click to Google or wait for 10 seconds",
+  button = TRUE,
+  delay = 10
+)
+```
+
+This is a reactive redirect button that contains customized id values.
+This button redirects you to **normal ending** by an indicator of `status=0`.
+```{r}
+# Reactive redirect to normal ending
+sd_output("redirect_normal")
+```
+
+:::
+
+::: {#screenout_page .sd-page}
+
+## This it the screenout page of the survey.
+
+This is a reactive redirect button that contains customized id values.
+This button redirects you to **screenout** by an indicator of `status=1`.
+```{r}
+# Reactive redirect to screenout
+sd_output("redirect_screenout")
+```
+
+:::
+
+```{r}
+#| context: server
+
+# Reactive redirect for a normal ending
+url_normal <- reactive({
+  params <- sd_get_url_pars()
+  id_a <- params["id_a"]
+  id_b <- params["id_b"]
+  id_c <- params["id_c"]
+  return(paste0("https://www.google.com?id_a=", id_a,
+                "id_b=", id_b,
+                "id_c=", id_c,
+                "&status=0")) # status of 0 indicates normal ending
+})
+sd_redirect(
+  id = "redirect_normal",
+  url = url_normal(),
+  button = TRUE,
+  label = "Redirect to new URL"
+)
+
+# Reactive redirect for a screenout
+url_screenout <- reactive({
+  params <- sd_get_url_pars()
+  id_a <- params["id_a"]
+  id_b <- params["id_b"]
+  id_c <- params["id_c"]
+  return(paste0("https://www.google.com?id_a=", id_a,
+                "id_b=", id_b,
+                "id_c=", id_c,
+                "&status=1")) # status of 1 indicates screenout
+})
+sd_redirect(
+  id = "redirect_screenout",
+  url = url_screenout(),
+  button = TRUE,
+  label = "Redirect to new URL"
+)
+
+################
+# config setup #
+################
+
+config <- sd_config(
+  skip_if = tibble::tribble(
+    ~question_id,          ~question_value, ~target,
+    "screening_question",  "end",           "end_page",
+    "screening_question",  "screenout",     "screenout_page"
+  )
+)
+
+# The sd_server() function initiates your survey. Don't change this.
+sd_server(
+  input   = input,
+  output  = output,
+  session = session,
+  config  = config,
+  db      = db
+)
+```
