@@ -91,9 +91,7 @@ sd_question(
     "Screenout ending with reactive redirect button" = "screenout"
   )
 )
-```
 
-```{r}
 sd_next(next_page = 'end_page_1')
 ```
 
@@ -133,6 +131,7 @@ sd_redirect(
 ## This it the normal ending page with reactive redirect button.
 
 This is a reactive redirect button that contains customized id values.
+
 This button redirects you to **normal ending** by an indicator of `status=0`.
 ```{r}
 # Reactive redirect to normal ending
@@ -146,6 +145,7 @@ sd_output("redirect_normal")
 ## This it the screenout page with reactive redirect button.
 
 This is a reactive redirect button that contains customized id values.
+
 This button redirects you to **screenout** by an indicator of `status=1`.
 ```{r}
 # Reactive redirect to screenout
