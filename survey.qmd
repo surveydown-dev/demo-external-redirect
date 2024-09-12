@@ -57,24 +57,29 @@ db <- sd_database(
 
 ::: {.callout-important}
 
-To properly showcase this demo, concatenate this to your URL:
+To properly showcase this demo, add this to your URL and press enter:
 
 ```{r}
 #| echo: true
 #| eval: false
+
 /?id_a=a123&id_b=b234&id_c=c345
 ```
 
-For example, if your original URL is: `http://localhost:8888`,
+For example, if your original URL is:
 
-your new URL should be: `http://localhost:8888/?id_a=a123&id_b=b234&id_c=c345`.
+`http://localhost:8888`
+
+Then your new URL should be:
+
+`http://localhost:8888/?id_a=a123&id_b=b234&id_c=c345`
 
 :::
 
 ::: {.callout-tip}
 
-1.  A **static** button is defined in the survey body. It provides a simple, hard-coded target URL.
-2.  A **reactive** button is defined in the server chunk. It grabs the IDs from the survey URL and appends to your target URL in your desired order. This is vitally important if you work with survey panels.
+1.  A **static** button is defined in the survey body. It provides a static, hard-coded target URL.
+2.  A **reactive** button is defined in the server chunk. It grabs parameters from the url and allows you to use them to construct a new redirect url.
 
 :::
 
@@ -102,25 +107,27 @@ sd_next(next_page = 'end_page_1')
 ## This it the normal ending page with static redirect buttons.
 
 This is a static redirect button to Google.
+
 ```{r}
 # Static redirect
 sd_redirect(
-  id = "redirect",
-  url = "https://www.google.com",
-  label = "Click to Google",
+  id     = "redirect",
+  url    = "https://www.google.com",
+  label  = "Click to Google",
   button = TRUE
 )
 ```
 
 This is a static redirect button with a count-down.
+
 ```{r}
-# Static redirect with delay
+# Static redirect with countdown delay
 sd_redirect(
-  id = "redirect",
-  url = "https://www.google.com",
-  label = "Click to Google or Wait for 10 Seconds",
+  id     = "redirect_countdown",
+  url    = "https://www.google.com",
+  label  = "Click to Google or Wait for 10 Seconds",
   button = TRUE,
-  delay = 10
+  delay  = 10
 )
 ```
 
@@ -130,11 +137,9 @@ sd_redirect(
 
 ## This it the normal ending page with reactive redirect button.
 
-This is a reactive redirect button that contains customized id values.
+This is a reactive redirect button that contains a customized redirect url, including url parameters and an indicator of `status=0`.
 
-This button redirects you to **normal ending** by an indicator of `status=0`.
 ```{r}
-# Reactive redirect to normal ending
 sd_output("redirect_normal")
 ```
 
@@ -144,11 +149,9 @@ sd_output("redirect_normal")
 
 ## This it the screenout page with reactive redirect button.
 
-This is a reactive redirect button that contains customized id values.
+This is a reactive redirect button that contains a customized redirect url, including url parameters and an indicator of `status=1`.
 
-This button redirects you to **screenout** by an indicator of `status=1`.
 ```{r}
-# Reactive redirect to screenout
 sd_output("redirect_screenout")
 ```
 
@@ -157,7 +160,7 @@ sd_output("redirect_screenout")
 ```{r}
 #| context: server
 
-# Reactive redirect for a normal ending
+# Reactive expression that generates a url for a normal ending
 url_normal <- reactive({
   params <- sd_get_url_pars()
   id_a <- params["id_a"]
@@ -168,14 +171,8 @@ url_normal <- reactive({
                 "id_c=", id_c,
                 "&status=0")) # status of 0 indicates normal ending
 })
-sd_redirect(
-  id = "redirect_normal",
-  url = url_normal(),
-  button = TRUE,
-  label = "Redirect as Normal Status"
-)
 
-# Reactive redirect for a screenout
+# Reactive expression that generates a url for a screenout ending
 url_screenout <- reactive({
   params <- sd_get_url_pars()
   id_a <- params["id_a"]
@@ -186,11 +183,21 @@ url_screenout <- reactive({
                 "id_c=", id_c,
                 "&status=1")) # status of 1 indicates screenout
 })
+
+# Create the redirect buttons (normal and screenout)
+
+sd_redirect(
+  id = "redirect_normal",
+  url = url_normal(),
+  button = FALSE,
+  label = "Redirect with Normal Status"
+)
+
 sd_redirect(
   id = "redirect_screenout",
   url = url_screenout(),
   button = TRUE,
-  label = "Redirect as Screenout Status"
+  label = "Redirect with Screenout Status"
 )
 
 ################
