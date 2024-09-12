@@ -189,7 +189,7 @@ url_screenout <- reactive({
 sd_redirect(
   id = "redirect_normal",
   url = url_normal(),
-  button = FALSE,
+  button = TRUE,
   label = "Redirect with Normal Status"
 )
 
