@@ -79,7 +79,7 @@ Then your new URL should be:
 ::: {.callout-tip}
 
 1.  A **static** button is defined in the survey body. It provides a static, hard-coded target URL.
-2.  A **reactive** button is defined in the server chunk. It grabs parameters from the url and allows you to use them to construct a new redirect url.
+2.  A **reactive** button is defined in the server chunk. It grabs parameters from the URL and allows you to use them to construct a new redirect URL.
 
 :::
 
