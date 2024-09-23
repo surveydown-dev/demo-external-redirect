@@ -64,24 +64,17 @@ server <- function(input, output, session) {
         label = "Redirect with Screenout Status"
     )
 
-    # Config setup
-    config <- sd_config(
-        skip_if = tibble::tribble(
-            ~question_id,          ~question_value, ~target,
-            "screening_question",  "normal_end_1",  "end_page_1",
-            "screening_question",  "normal_end_2",  "end_page_2",
-            "screening_question",  "screenout",     "screenout_page"
-        ),
-        all_questions_required = TRUE
+    # Define any conditional skip logic here (skip to page if a condition is true)
+    sd_skip_if(
+        input$screening_question == "normal_end_1" ~ "end_page_1",
+        input$screening_question == "normal_end_2" ~ "end_page_2",
+        input$screening_question == "screenout" ~ "screenout_page"
     )
 
-    # sd_server() initiates your survey - don't change it
+    # Database designation and other settings
     sd_server(
-        input   = input,
-        output  = output,
-        session = session,
-        config  = config,
-        db      = db
+        db = db,
+        all_questions_required = TRUE
     )
 
 }
