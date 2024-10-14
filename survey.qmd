@@ -35,8 +35,8 @@ Then your new URL should be:
 
 ::: {.callout-tip}
 
-1.  A **static** button is defined in the survey body. It provides a static, hard-coded target URL.
-2.  A **reactive** button is defined in the server chunk. It grabs parameters from the URL and allows you to use them to construct a new redirect URL.
+1.  A **static** button is defined in `survey.qmd`. It provides a static, hard-coded target URL.
+2.  A **reactive** button is defined in the `server` part of `app.R`. It grabs parameters from the URL and allows you to use them to construct a new redirect URL.
 
 :::
 
